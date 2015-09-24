@@ -1,8 +1,6 @@
 (function() {
   
-  var MAX_RESIZE_X,
-      MAX_RESIZE_Y,
-      MIN_RESIZE_X = 0,
+  var MIN_RESIZE_X = 0,
       MIN_RESIZE_Y = 0,
       MIN_RESIZE_SIZE = 50;
 
@@ -17,7 +15,7 @@
   cropRect.style.background = "white";
   cropRect.style.opacity = "0.5";
   cropRect.style.position = "absolute";
-  console.log(cropRect);
+  // console.log(cropRect);
 
   var resizeImg = uploadResizeForm.querySelector('img');
   var resizeImgW = resizeImg.offsetWidth;
@@ -30,7 +28,7 @@
     var maxSize = Math.min(resizeImgW - resizeValueX, resizeImgH - resizeValueY);
     var resizeSizeValue = resizeSize.value = (resizeSize.value >= maxSize) ? maxSize : resizeSize.value ;
     
-    console.log("onchange");
+    // console.log("onchange");
     //-----
     cropRect.style.width = cropRect.style.height = resizeSizeValue + "px";
     cropRect.style.left = resizeValueX + "px";
@@ -41,8 +39,8 @@
   resizeX.value = MIN_RESIZE_X;
   resizeY.value = MIN_RESIZE_Y;
   // resizeSize.value = Math.min(resizeImgW, resizeImgH);
-  resizeX.min = 0;
-  resizeY.min = 0;
+  resizeX.min = MIN_RESIZE_X;
+  resizeY.min = MIN_RESIZE_Y;
 
   
 })()
