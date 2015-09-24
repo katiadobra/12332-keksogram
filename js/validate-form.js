@@ -1,48 +1,48 @@
-(function(){
+(function() {
+  
+  var MAX_RESIZE_X,
+      MAX_RESIZE_Y,
+      MIN_RESIZE_X = 0,
+      MIN_RESIZE_Y = 0,
+      MIN_RESIZE_SIZE = 50;
 
   var uploadResizeForm = document.forms['upload-resize'];
   var resizeX = uploadResizeForm['resize-x'];
   var resizeY = uploadResizeForm['resize-y'];
   var resizeSize = uploadResizeForm['resize-size'];
+  
+  //-----
+  var cropRect = document.createElement("div");
+  uploadResizeForm.appendChild(cropRect);
+  cropRect.style.background = "white";
+  cropRect.style.opacity = "0.5";
+  cropRect.style.position = "absolute";
+  console.log(cropRect);
 
   var resizeImg = uploadResizeForm.querySelector('img');
   var resizeImgW = resizeImg.offsetWidth;
   var resizeImgH = resizeImg.offsetHeight;
-
-  var defaultSize = function(){
-    if ( resizeImgW > resizeImgH ) {
-      defaultSize = resizeImgH;
-    } else {
-      defaultSize = resizeImgW;
-    }
-  }
-
-  resizeX.onchange = function(evt) {
+  
+  console.log(resizeImg);
+  resizeSize.onchange = resizeY.onchange = resizeX.onchange = function(evt) {
     var resizeValueX = resizeX.value;
     var resizeValueY = resizeY.value;
-    var resizeSizeValue = resizeSize.value;
-
-    // if ( ) {
-
-    // } 
+    var maxSize = Math.min(resizeImgW - resizeValueX, resizeImgH - resizeValueY);
+    var resizeSizeValue = resizeSize.value = (resizeSize.value >= maxSize) ? maxSize : resizeSize.value ;
+    
+    console.log("onchange");
+    //-----
+    cropRect.style.width = cropRect.style.height = resizeSizeValue + "px";
+    cropRect.style.left = resizeValueX + "px";
+    cropRect.style.top = resizeValueY + "px";
   }
 
-
-  var MAX_RESIZE_X,
-    MAX_RESIZE_Y,
-    MIN_RESIZE_X = 0,
-    MIN_RESIZE_Y = 0,
-    MIN_RESIZE_SIZE = 50;
 
   resizeX.value = MIN_RESIZE_X;
   resizeY.value = MIN_RESIZE_Y;
-  resizeSize.value = defaultSize;
+  // resizeSize.value = Math.min(resizeImgW, resizeImgH);
   resizeX.min = 0;
   resizeY.min = 0;
 
   
-  
-})();
-
-
-
+})()
