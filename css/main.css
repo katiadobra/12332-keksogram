@@ -257,6 +257,12 @@ input[type=radio]:checked + .upload-filter-label {
   margin-right: 600px;
 }
 
+/*.cropRect {
+  position: absolute;
+  background-color: #fff;
+  opacity: .5;
+}*/
+
 @media (min-width: 1380px) {
   .pictures {
     width: 1380px;
