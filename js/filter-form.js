@@ -38,8 +38,16 @@
   filterForm.onsubmit = function() {
     evt.preventDefault();
 
+    // Write cookie
+    docCookies.setItem('upload-filter', selectedFilter.value);
+
     uploadForm.classList.remove('invisible');
     filterForm.classList.add('invisible');
+  }
+
+  // Get cookie
+  if (docCookies.hasItem('upload-filter')) {
+    selectedFilter.value = docCookies.getItem('upload-filter');
   }
 
   setFilter();
