@@ -292,12 +292,6 @@ input[type=radio]:checked + .upload-filter-label {
   margin-right: 600px;
 }
 
-/*.cropRect {
-  position: absolute;
-  background-color: #fff;
-  opacity: .5;
-}*/
-
 .picture-load-failure {
   background: url('../img/icon-cross.png') no-repeat center;
   border: solid 1px rgba(255, 255, 255, 0.2);
