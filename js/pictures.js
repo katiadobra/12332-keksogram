@@ -10,12 +10,10 @@
     'DONE': 4
   };
 
+  var REQUEST_FAILURE_TIMEOUT = 10000;
   var picturesContainer = document.querySelector('.pictures')
   var filters = document.querySelector('.filters');
   var pictures;
-
-  var REQUEST_FAILURE_TIMEOUT = 10000;
-
 
 
   // renderPictures
@@ -50,9 +48,7 @@
     });
 
     picturesContainer.appendChild(picturesFragment);
-
   }
-
 
 
   function showLoadFailure() {
@@ -60,15 +56,16 @@
   }
 
 
-    var xhr = new XMLHttpRequest();
-
-  // Load pictures func
+  // Load pictures with XHR
   function loadPictures(callback) {
     filters.classList.add('hidden');
+
+    var xhr = new XMLHttpRequest();
 
     xhr.timeout = REQUEST_FAILURE_TIMEOUT;
     xhr.open('get', 'data/pictures.json', true);
     xhr.send();
+
 
     xhr.onreadystatechange = function(evt ) {
       var loadedXhr = evt.target;
@@ -98,65 +95,80 @@
     xhr.ontimeout = function() {
       showLoadFailure();
     }
+  }
 
-    function filterPictures(pictures, value) {
-      var filteredPictures = pictures.slice(0);
-      switch (value) {
-        case 'new':
-          filteredPictures = filteredPictures.sort(function(a, b) {
-            if (a.date > b.date) {
-              return 1;
-            }
-            if (a.date < b.date) {
-              return -1;
-            }
-            if (a.date === b.date) {
-              return 0;
-            }
-          });
-          break;
+  function filterPictures(pictures, value) {
+    var filteredPictures = pictures.slice(0);
+    switch (value) {
+      case 'new':
+        filteredPictures = filteredPictures.sort(function(a, b) {
+          if (a.date > b.date) {
+            return 1;
+          }
+          if (a.date < b.date) {
+            return -1;
+          }
+          if (a.date === b.date) {
+            return 0;
+          }
+        });
+        break;
 
-        case 'discussed':
-          filteredPictures = filteredPictures.sort(function(a, b) {
-            if (a.comments > b.comments) {
-              return 1;
-            }
-            if (a.comments < b.comments) {
-              return -1;
-            }
-            if (a.comments === b.comments) {
-              return 0;
-            }
-          });
-          break;
+      case 'discussed':
+        filteredPictures = filteredPictures.sort(function(a, b) {
+          if (a.comments > b.comments) {
+            return 1;
+          }
+          if (a.comments < b.comments) {
+            return -1;
+          }
+          if (a.comments === b.comments) {
+            return 0;
+          }
+        });
+        break;
 
-        case 'popular':
-        default:
-          filteredPictures = pictures.slice(0);
-          break;
-      }
-
-      return filteredPictures;
+      case 'popular':
+      default:
+        filteredPictures = pictures.slice(0);
+        break;
     }
 
-    function initFilters() {
-      var filterElements = document.querySelectorAll('.filters-item');
-      for (var i = 0; i < filterElements.length; i++) {
-        filterElements[i].onclick = function(evt) {
-          console.log('filter ');
-        }
+    console.log('filteredPictures');
+    return filteredPictures;
+  }
 
+  function initFilters() {
+    var filterElements = document.querySelectorAll('.filters-item');
+    for (var i = 0; i < filterElements.length; i++) {
+      filterElements[i].onclick = function(evt) {
+        var label = evt.target.htmlFor;
+        var input = document.querySelector('#' + label);
+        var selectedFilter = input.value;
+
+        console.log('initFilters');
+
+        setActiveFilter(selectedFilter);
       }
     }
   }
 
+  function setActiveFilter(filterValue) {
+    console.log('setActiveFilter');
+
+    var filteredPictures = filterPictures(pictures, filterValue);
+    renderPictures(filteredPictures);
+  }
+
+
+
   initFilters();
 
+  loadPictures(function(loadedPictures) {
+    pictures = loadedPictures;
 
-  // Load pictures after xhr done
-  loadPictures(function(loadPictures) {
-    pictures = loadPictures;
-    renderPictures(loadPictures);
+    console.log('loadPictures');
+    setActiveFilter('popular');
   });
 
 })();
