@@ -1,103 +1,80 @@
 'use strict';
 
 (function() {
-  var uploadForm = document.forms['upload-select-image'];
-  var resizeForm = document.forms['upload-resize'];
+
+  var uploadResizeForm = document.forms['upload-resize'];
   var filterForm = document.forms['upload-filter'];
 
-  var displacementX = resizeForm['resize-x'];
-  var displacementY = resizeForm['resize-y'];
-  var resizeSide = resizeForm['resize-size'];
 
-  var resizeImg = resizeForm.querySelector('.resize-image-preview');
-  var prevButton = resizeForm['resize-prev'];
+  var resizeX = uploadResizeForm['resize-x'];
+  var resizeY = uploadResizeForm['resize-y'];
+  var resizeSize = uploadResizeForm['resize-size'];
+  var resizeImg = uploadResizeForm.querySelector('.resize-image-preview');
 
-  // Initial values
-  displacementX.value = 0;
-  displacementY.value = 0;
-  resizeSide.value = 100;
+  // The initial values of the fields
+  resizeX.value = 0;
+  resizeY.value = 0;
+  resizeSize.value = 100;
+  resizeX.min = 0;
+  resizeY.min = 0;
+  resizeSize.min = 50;
 
-  // Minimal values
-  displacementX.min = 0;
-  displacementY.min = 0;
-  resizeSide.min = 1;
 
-  
-  // Setting the maximum displacement and adjustment to these values. 
+  // Setting the maximum displacement and adjustment to these values.
   // If the sizes do not match - change the value of input
-
-  function setDisplacement() {
-    displacementX.max = Math.max(resizeImg.offsetWidth - resizeSide.value, 0);
-    displacementY.max = Math.max(resizeImg.offsetHeight - resizeSide.value, 0);
-
-    if (displacementX.value > displacementX.max) {
-      displacementX.value = displacementX.max;
-    }
-
-    if (displacementY.value > displacementY.max) {
-      displacementY.value = displacementY.max;
-    }
-  }
-
   function displacementIsValid() {
-    setDisplacement();
-
-    return displacementX.value <= displacementX.max && displacementY.value <= displacementY.max;
-  }
-
-  function setResizeSide() {
     var resizeImgW = resizeImg.offsetWidth;
     var resizeImgH = resizeImg.offsetHeight;
 
-    var resizeValueX = parseInt(displacementX.value, 10);
-    var resizeValueY = parseInt(displacementY.value, 10);
+    var resizeValueX = parseInt(resizeX.value, 10);
+    var resizeValueY = parseInt(resizeY.value,10);
+    var side = parseInt(resizeSize.value, 10);
+    var maxSize = Math.min(resizeImgW - resizeValueX, resizeImgH - resizeValueY);
 
-    resizeSide.max = Math.min(resizeImgW - resizeValueX, resizeImgH - resizeValueY);
+    resizeX.min = 0;
+    resizeY.min = 0;
+    resizeX.max = resizeImgW - side;
+    resizeY.max = resizeImgH - side;
 
-    if (resizeSide.value > resizeSide.max) {
-      resizeSide.value = Math.max(resizeSide.max, resizeSide.min);
+
+    if (resizeValueX < 0 || resizeValueY < 0 || resizeValueX === '') {
+      return false;
+    } else if (resizeValueX + side > resizeImgW || resizeValueY + side > resizeImgH) {
+      return false;
     }
+
+    return true;
   }
 
   function sideIsValid() {
-      setResizeSide();
+    var resizeImgW = resizeImg.offsetWidth;
+    var resizeImgH = resizeImg.offsetHeight;
+    var side = parseInt(resizeSize.value, 10);
 
-      return resizeSide.value <= resizeSide.max;
-  }
-
-  displacementY.onchange =  function(evt) {
-    if (!displacementX.max) {
-      setDisplacement();
+    if (side < 0 || side > resizeImgW || side > resizeImgH) {
+      return false;
     }
 
-    setResizeSide();
+    return true;
   }
 
-  displacementX.onchange = function(evt) {
-    // displacementX.max = resizeImgW - resizeValueX;
-    // displacementY.max = resizeImgH - resizeValueY;
-
-    if (!displacementX.max) {
-      setDisplacement();
-    }
-
-    setResizeSide();
+  resizeY.onchange = resizeX.onchange = function(evt) {
+    displacementIsValid();
   }
 
-  resizeSide.onchange = function(evt) {
-    setDisplacement();
+  resizeSize.onchange = function(evt) {
+    sideIsValid();
   }
 
-
-  resizeForm.onsubmit = function(evt) {
-    evt.preventDefault();
+  uploadResizeForm.onsubmit = function(e) {
+    e.preventDefault();
 
     if ( displacementIsValid() && sideIsValid() ) {
       filterForm.elements['filter-image-src'] = resizeImg.src;
 
-      resizeForm.classList.add('invisible');
+      uploadResizeForm.classList.add('invisible');
       filterForm.classList.remove('invisible');
-    } 
+    }
   }
-  
+
 })()
