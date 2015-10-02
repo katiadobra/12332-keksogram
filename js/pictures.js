@@ -1,6 +1,6 @@
 'use strict';
 
-(function(){
+(function() {
 
   var ReadyState = {
     'UNSENT': 0,
@@ -11,20 +11,20 @@
   };
 
   var REQUEST_FAILURE_TIMEOUT = 10000;
-  var picturesContainer = document.querySelector('.pictures')
+  var picturesContainer = document.querySelector('.pictures');
   var filters = document.querySelector('.filters');
   var pictures;
 
 
-  // renderPictures
-  function renderPictures(pictures) {
+  // render Pictures
+  function renderPictures(pic) {
     picturesContainer.classList.remove('picture-load-failure');
     picturesContainer.innerHTML = '';
 
     var pictureTemplate = document.querySelector('.picture-template');
     var picturesFragment = document.createDocumentFragment();
 
-    pictures.forEach(function(picture, i){
+    pic.forEach(function(picture) {
       var newPictureElement = pictureTemplate.content.children[0].cloneNode(true);
 
       newPictureElement.querySelector('.picture-likes').textContent = picture['likes'];
@@ -36,15 +36,15 @@
         var pictureImg = new Image();
         pictureImg.src = picture['url'];
 
-        pictureImg.onerror = function(evt) {
+        pictureImg.onerror = function() {
           newPictureElement.classList.add('picture-load-failure');
-        }
+        };
 
         pictureImg.onload = function() {
           newPictureElement.replaceChild(pictureImg, newPictureElement.querySelector('img'));
           pictureImg.width = 182;
           pictureImg.height = 182;
-        }
+        };
       }
 
       picturesFragment.appendChild(newPictureElement);
@@ -70,7 +70,7 @@
     xhr.send();
 
 
-    xhr.onreadystatechange = function(evt ) {
+    xhr.onreadystatechange = function(evt) {
       var loadedXhr = evt.target;
 
       switch (loadedXhr.readyState) {
@@ -97,10 +97,10 @@
 
     xhr.ontimeout = function() {
       showLoadFailure();
-    }
+    };
   }
 
-  function filterPictures(pictures, value) {
+  function filterPictures(pic, value) {
     var filteredPictures = pictures.slice(0);
     switch (value) {
       case 'new':
@@ -149,7 +149,7 @@
         var selectedFilter = input.value;
 
         setActiveFilter(selectedFilter);
-      }
+      };
     }
   }
 
