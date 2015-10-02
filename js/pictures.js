@@ -137,7 +137,6 @@
         break;
     }
 
-    console.log('filteredPictures');
     return filteredPictures;
   }
 
@@ -149,16 +148,12 @@
         var input = document.querySelector('#' + label);
         var selectedFilter = input.value;
 
-        console.log('initFilters');
-
         setActiveFilter(selectedFilter);
       }
     }
   }
 
   function setActiveFilter(filterValue) {
-    console.log('setActiveFilter');
-
     var filteredPictures = filterPictures(pictures, filterValue);
     renderPictures(filteredPictures);
   }
@@ -170,7 +165,6 @@
   loadPictures(function(loadedPictures) {
     pictures = loadedPictures;
 
-    console.log('loadPictures');
     setActiveFilter('popular');
   });
 
