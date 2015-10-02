@@ -18,6 +18,9 @@
 
   // renderPictures
   function renderPictures(pictures) {
+    picturesContainer.classList.remove('picture-load-failure');
+    picturesContainer.innerHTML = '';
+
     var pictureTemplate = document.querySelector('.picture-template');
     var picturesFragment = document.createDocumentFragment();
 
@@ -103,10 +106,10 @@
       case 'new':
         filteredPictures = filteredPictures.sort(function(a, b) {
           if (a.date > b.date) {
-            return 1;
+            return -1;
           }
           if (a.date < b.date) {
-            return -1;
+            return 1;
           }
           if (a.date === b.date) {
             return 0;
@@ -117,10 +120,10 @@
       case 'discussed':
         filteredPictures = filteredPictures.sort(function(a, b) {
           if (a.comments > b.comments) {
-            return 1;
+            return -1;
           }
           if (a.comments < b.comments) {
-            return -1;
+            return 1;
           }
           if (a.comments === b.comments) {
             return 0;
