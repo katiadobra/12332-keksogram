@@ -11,27 +11,40 @@
   };
 
   var REQUEST_FAILURE_TIMEOUT = 10000;
+  var PAGE_SIZE = 12;
+
   var picturesContainer = document.querySelector('.pictures');
   var filters = document.querySelector('.filters');
-  var pictures;
+  var pictures; // initial state of pictures
+  var currentPictures; // current state of renderd pictures
+  var currentPage = 0;
 
 
-  // render Pictures
-  function renderPictures(pic) {
-    picturesContainer.classList.remove('picture-load-failure');
-    picturesContainer.innerHTML = '';
+// render Pictures
+  function renderPictures(picToRender, pageNumber, replace) {
+    replace = typeof replace !== 'undefined' ? replace : true;
+    pageNumber = pageNumber || 0;
+
+    if (replace) {
+      picturesContainer.classList.remove('picture-load-failure');
+      picturesContainer.innerHTML = '';
+    }
 
     var pictureTemplate = document.querySelector('.picture-template');
     var picturesFragment = document.createDocumentFragment();
 
-    pic.forEach(function(picture) {
+    var renderFrom = pageNumber * PAGE_SIZE;
+    var renderTo = renderFrom + PAGE_SIZE;
+    picToRender = picToRender.slice(renderFrom, renderTo);
+
+    picToRender.forEach(function(picture) {
       var newPictureElement = pictureTemplate.content.children[0].cloneNode(true);
 
       newPictureElement.querySelector('.picture-likes').textContent = picture['likes'];
       newPictureElement.querySelector('.picture-comments').textContent = picture['comments'];
 
 
-      // Set img
+// set img
       if (picture['url']) {
         var pictureImg = new Image();
         pictureImg.src = picture['url'];
@@ -53,13 +66,13 @@
     picturesContainer.appendChild(picturesFragment);
   }
 
-
+// on error
   function showLoadFailure() {
     picturesContainer.classList.add('pictures-failure ');
   }
 
 
-  // Load pictures with XHR
+// load pictures with XHR
   function loadPictures(callback) {
     filters.classList.add('hidden');
 
@@ -100,6 +113,8 @@
     };
   }
 
+
+// filter pictures
   function filterPictures(pic, value) {
     var filteredPictures = pictures.slice(0);
     switch (value) {
@@ -137,35 +152,67 @@
         break;
     }
 
+    localStorage.setItem('value', value); // write to localStorage
     return filteredPictures;
   }
 
   function initFilters() {
     var filterElements = document.querySelectorAll('.filters-item');
     for (var i = 0; i < filterElements.length; i++) {
-      filterElements[i].onclick = function(evt) {
+      filterElements[i].addEventListener('click', function(evt) {
         var label = evt.target.htmlFor;
         var input = document.querySelector('#' + label);
         var selectedFilter = input.value;
 
         setActiveFilter(selectedFilter);
-      };
+      });
     }
   }
 
+
   function setActiveFilter(filterValue) {
-    var filteredPictures = filterPictures(pictures, filterValue);
-    renderPictures(filteredPictures);
+    currentPictures = filterPictures(pictures, filterValue);
+    currentPage = 0;
+    renderPictures(currentPictures, currentPage, true);
   }
 
 
+// scroll event
+  function isNextPageAvailable() {
+    return currentPage < Math.ceil(pictures.length / PAGE_SIZE);
+  }
 
+  function isAtTheBottom() {
+    var GAP = 100; // 100px bottom
+    return picturesContainer.getBoundingClientRect().bottom - GAP <= window.innerHeight;
+  }
+
+  function checkNextPage() { // if we are at the bottom of the page - render next page
+    if ( isNextPageAvailable() && isAtTheBottom() ) {
+      window.dispatchEvent(new CustomEvent('needload'));
+    }
+  }
+
+  function initScroll() {
+    var someTimeout;
+    window.addEventListener('scroll', function() {
+      clearTimeout(someTimeout);
+      someTimeout = setTimeout(checkNextPage, 100); // call func every 100ms
+    });
+
+    window.addEventListener('needload', function() {
+      renderPictures(currentPictures, currentPage++, false);
+    });
+  }
+
+
+// init events
   initFilters();
+  initScroll();
 
   loadPictures(function(loadedPictures) {
     pictures = loadedPictures;
-
-    setActiveFilter('popular');
+    setActiveFilter(localStorage.getItem('value') || 'popular'); // filter from localStorage or default
   });
 
 })();
