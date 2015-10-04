@@ -156,17 +156,32 @@
     return filteredPictures;
   }
 
-  function initFilters() {
-    var filterElements = document.querySelectorAll('.filters-item');
-    for (var i = 0; i < filterElements.length; i++) {
-      filterElements[i].addEventListener('click', function(evt) {
-        var label = evt.target.htmlFor;
-        var input = document.querySelector('#' + label);
-        var selectedFilter = input.value;
+// for delegation
+  function doesHaveParent(el, className) {
+    do {
+      if (el.classList.contains(className)) {
+        return true;
+      }
+      el = el.parentElement;
+    } while (el);
 
-        setActiveFilter(selectedFilter);
-      });
-    }
+    return false;
+  }
+
+  // add Listener on pictures container
+  function initFilters() {
+    var filterContainer = document.querySelector('.filters');
+
+    filterContainer.addEventListener('click', function(evt) {
+      evt.preventDefault();
+      if (doesHaveParent(evt.target, 'filters-item')) {
+        var clickedFilter = evt.target.htmlFor;
+        var input = document.querySelector('#' + clickedFilter);
+        var filterValue = input.value;
+
+        setActiveFilter(filterValue);
+      }
+    });
   }
 
 
@@ -174,6 +189,8 @@
     currentPictures = filterPictures(pictures, filterValue);
     currentPage = 0;
     renderPictures(currentPictures, currentPage, true);
+    var input = document.querySelector('#' + 'filter-' + filterValue);
+    input.checked = true;
   }
 
 
