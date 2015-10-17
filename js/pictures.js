@@ -1,3 +1,5 @@
+/* global Photo: true */
+
 'use strict';
 
 (function() {
@@ -19,9 +21,10 @@
   var currentPictures; // current state of renderd pictures
   var currentPage = 0;
 
+  var picturesFragment = document.createDocumentFragment();
 
 // render Pictures
-  function renderPictures(picToRender, pageNumber, replace) {
+  function renderPictures(data, pageNumber, replace) {
     replace = typeof replace !== 'undefined' ? replace : true;
     pageNumber = pageNumber || 0;
 
@@ -30,37 +33,15 @@
       picturesContainer.innerHTML = '';
     }
 
-    var pictureTemplate = document.querySelector('.picture-template');
-    var picturesFragment = document.createDocumentFragment();
 
     var renderFrom = pageNumber * PAGE_SIZE;
     var renderTo = renderFrom + PAGE_SIZE;
-    picToRender = picToRender.slice(renderFrom, renderTo);
+    data = data.slice(renderFrom, renderTo);
 
-    picToRender.forEach(function(picture) {
-      var newPictureElement = pictureTemplate.content.children[0].cloneNode(true);
-
-      newPictureElement.querySelector('.picture-likes').textContent = picture['likes'];
-      newPictureElement.querySelector('.picture-comments').textContent = picture['comments'];
-
-
-// set img
-      if (picture['url']) {
-        var pictureImg = new Image();
-        pictureImg.src = picture['url'];
-
-        pictureImg.onerror = function() {
-          newPictureElement.classList.add('picture-load-failure');
-        };
-
-        pictureImg.onload = function() {
-          newPictureElement.replaceChild(pictureImg, newPictureElement.querySelector('img'));
-          pictureImg.width = 182;
-          pictureImg.height = 182;
-        };
-      }
-
-      picturesFragment.appendChild(newPictureElement);
+    data.forEach(function(picData) {
+      var newPictureElement = new Photo(picData);
+      newPictureElement.render(picturesFragment);
+      // renderedPictures.push(newPicElement);
     });
 
     picturesContainer.appendChild(picturesFragment);
@@ -77,7 +58,6 @@
     filters.classList.add('hidden');
 
     var xhr = new XMLHttpRequest();
-
     xhr.timeout = REQUEST_FAILURE_TIMEOUT;
     xhr.open('get', 'data/pictures.json', true);
     xhr.send();
