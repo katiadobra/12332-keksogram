@@ -1,65 +1,76 @@
 'use strict';
 
 (function() {
-  var Key = {
-    'ESC': 27,
-    'LEFT': 37,
-    'RIGHT': 39
+  // var Key = {
+  //   'ESC': 27
+  // };
+
+  //@constructor
+  // конструктор для галереи
+  var Gallery = function() {
+    this.element = document.querySelector('.gallery-overlay');
+    this.closeBtn = this.element.querySelector('.gallery-overlay-close');
+    this._photoElement = document.querySelector('.gallery-overlay-preview');
+
+    this._photos = [];
+    this._currentPhoto = 0;
   };
 
-  var picturesContainer = document.querySelector('.pictures');
-  var galleryElement = document.querySelector('.gallery-overlay');
-  var closeBtn = galleryElement.querySelector('.gallery-overlay-close');
+  // метод show через прототип показывает галерею
+  Gallery.prototype.show = function() {
+    this.element.classList.remove('invisible');
+    this.closeBtn.addEventListener('click', this._onCloseButtonClick); // add Listener for click
+    document.body.addEventListener('keydown', this._onKeyDown); // add Listener for keyboard
+    this._photoElement.addEventListener('click', this._onPhotoClick);
 
-  function doesHaveParent(el, className) {
-    do {
-      if (el.classList.contains(className)) {
-        return !el.classList.contains('picture-nophoto');
-      }
-      el = el.parentElement;
-    } while (el);
+    this._showCurrentPhoto();
+  };
 
-    return false;
-  }
+  // метод hide через прототип скрывает галерею
+  Gallery.prototype.hide = function() {
+    this.element.classList.add('invisible');
+    this.closeBtn.removeEventListener('click', this._onCloseButtonClick); // remove Listener for click
+    document.body.addEventListener('keydown', this._onKeyDown); // remove Listener for keyboard
+    this._photoElement.addEventListener('click', this._onPhotoClick);
 
-  function hideGallery() {
-    galleryElement.classList.add('invisible');
-    closeBtn.removeEventListener('click', closeHandler); // remove Listener for click
-    document.body.addEventListener('keydown', keyHandler); // remove Listener for keyboard
-  }
+    this._photos = [];
+    this._currentPhoto = 0;
+  };
 
-  function closeHandler(evt) {
-    evt.preventDefault(); // be on the safe side
-    hideGallery();
-  }
+/** записывает в приватное свойство _photos массив
+ * с адресами фотографий, которые показываются в галерее.
+ */
+  Gallery.prototype.setPhotos = function(photos) {
+    this._photos = photos;
+  };
 
-  function keyHandler(evt) {
-    switch (evt.keyCode) {
-      case Key.LEFT:
-        console.log('show previous photo');
-        break;
-      case Key.RIGHT:
-        console.log('show next photo');
-        break;
-      case Key.ESC:
-        hideGallery();
-        break;
-      default: break;
-    }
-  }
+/** записывает в приватное свойство _currentPhoto индекс
+ * текущей показанной фотографии, показывает ее на экране
+ * и пишет ее номер в соответствующем блоке.
+ */
+  Gallery.prototype.setCurrentPhoto = function() {
 
-  function showGaller() {
-    galleryElement.classList.remove('invisible');
-    closeBtn.addEventListener('click', closeHandler); // add Listener for click
-    document.body.addEventListener('keydown', keyHandler); // add Listener for keyboard
-  }
+  };
 
-// add Listener on pictures container
-  picturesContainer.addEventListener('click', function(evt) {
-    evt.preventDefault();
-    if (doesHaveParent(evt.target, 'picture')) { // smart Delegation
-      showGaller();
-    }
-  });
+/** вызывает метод setCurrentPhoto с определенными параметрами. */
+  Gallery.prototype._onPhotoClick = function() {
 
+  };
+
+/**  вызывает закрытие галереи по нажатию Esc
+ * и переключение фотографий по нажатию клавиш влево и вправо
+ */
+  Gallery.prototype._onDocumentKeyDown = function() {
+
+  };
+
+/** Обработчик события клика по закрывающему элементу _onCloseButtonClick,
+ * который вызывает метод hide.
+ */
+  // Gallery.prototype.__onCloseButtonClick = function(evt) {
+  //   evt.preventDefault();
+  //   this.hide();
+  // };
+
+  window.Gallery = Gallery;
 })();

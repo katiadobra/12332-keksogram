@@ -8,7 +8,7 @@
   // конструктор для фото
   var Photo = function(data) {
     this._data = data;
-    // this._onClick = this._onClick.bind(this);
+    this._onClick = this._onClick.bind(this); // метод для обработки события клик
   };
 
 
@@ -36,12 +36,14 @@
     };
 
     this._element = newPictureElement;
+    this._element.addEventListener('click', this._onClick); // Обработчик события клик - метод конструктора Photo
   };
 
 
   // метод unrender
   Photo.prototype.unrender = function() {
     this._element.parentNode.removeChild(this._element);
+    this._element.removeEventListener('click', this._onClick);
     this._element = null;
   };
 
@@ -53,6 +55,11 @@
   // метод для обработки клика
   Photo.prototype._onClick = function() {
 
+    /** создает кастомное событие galleryclick с добавочными данными
+     *  в свойстве detail, которые указывают на текущий объект Photo.
+     *  Это используется для передачи фотографий в фотогалерею. */
+    var galleryEvent = new CustomEvent('galleryclick', { detail: { pictureElement: this }});
+    window.dispatchEvent(galleryEvent);
   };
 
   // Picture в глобальную область видимости
