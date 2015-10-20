@@ -204,9 +204,12 @@
   }
 
   function initGallery() {
-    window.addEventListener('galleryclick', function(evt) {
-
-      gallery.setPhotos(evt.detail._photoElement._data.pictures); // ?????
+    // подписываемся на событие клика по фото
+    window.addEventListener('galleryclick', function() {
+      if (!gallery) {
+        gallery = new Gallery();
+      }
+      // gallery.setCurrentPhoto(evt.detail._photoElement._data.pictures); // ?????
       gallery.show();
     });
   }
@@ -214,12 +217,13 @@
 
 // init events
   initFilters();
-  initGallery();
   initScroll();
+  initGallery();
 
   loadPictures(function(loadedPictures) {
     pictures = loadedPictures;
-    setActiveFilter(localStorage.getItem('value') || 'popular'); // filter from localStorage or default
+    setActiveFilter(localStorage.getItem('value') || 'popular');
+    // filter from localStorage or default
   });
 
 })();

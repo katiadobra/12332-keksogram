@@ -4,11 +4,16 @@
 
   var pictureTemplate = document.querySelector('.picture-template');
 
-  // @constructor
-  // конструктор для фото
+  /**
+   * конструктор для фото
+   */
   var Photo = function(data) {
     this._data = data;
-    this._onClick = this._onClick.bind(this); // метод для обработки события клик
+
+    /** чтобы обработчик являлся методом класса
+     *событие клик привязывается к тому отелю, на котором вызвано
+     */
+    this._onClick = this._onClick.bind(this);
   };
 
 

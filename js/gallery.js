@@ -1,16 +1,18 @@
 'use strict';
 
 (function() {
-  // var Key = {
-  //   'ESC': 27
-  // };
+  var Key = {
+    'ESC': 27,
+    'LEFT': 37,
+    'RIGHT': 39
+  };
 
   //@constructor
   // конструктор для галереи
   var Gallery = function() {
     this.element = document.querySelector('.gallery-overlay');
     this.closeBtn = this.element.querySelector('.gallery-overlay-close');
-    this._photoElement = document.querySelector('.gallery-overlay-preview');
+    this._photoElement = this.element.querySelector('.gallery-overlay-preview');
 
     this._photos = [];
     this._currentPhoto = 0;
@@ -30,8 +32,8 @@
   Gallery.prototype.hide = function() {
     this.element.classList.add('invisible');
     this.closeBtn.removeEventListener('click', this._onCloseButtonClick); // remove Listener for click
-    document.body.addEventListener('keydown', this._onKeyDown); // remove Listener for keyboard
-    this._photoElement.addEventListener('click', this._onPhotoClick);
+    document.body.removeEventListener('keydown', this._onKeyDown); // remove Listener for keyboard
+    this._photoElement.removeEventListener('click', this._onPhotoClick);
 
     this._photos = [];
     this._currentPhoto = 0;
@@ -49,7 +51,7 @@
  * и пишет ее номер в соответствующем блоке.
  */
   Gallery.prototype.setCurrentPhoto = function() {
-
+    // this._currentPhoto
   };
 
 /** вызывает метод setCurrentPhoto с определенными параметрами. */
@@ -60,8 +62,19 @@
 /**  вызывает закрытие галереи по нажатию Esc
  * и переключение фотографий по нажатию клавиш влево и вправо
  */
-  Gallery.prototype._onDocumentKeyDown = function() {
-
+  Gallery.prototype._onDocumentKeyDown = function(evt) {
+    switch (evt.keyCode) {
+      case Key.LEFT:
+        console.log('show previous photo');
+        break;
+      case Key.RIGHT:
+        console.log('show next photo');
+        break;
+      case Key.ESC:
+        this.hide();
+        break;
+      default: break;
+    }
   };
 
 /** Обработчик события клика по закрывающему элементу _onCloseButtonClick,
