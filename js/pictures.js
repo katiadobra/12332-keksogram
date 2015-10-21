@@ -203,15 +203,23 @@
     });
   }
 
-  function initGallery() {
-    // подписываемся на событие клика по фото
-    window.addEventListener('galleryclick', function() {
-      if (!gallery) {
-        gallery = new Gallery();
-      }
-      // gallery.setCurrentPhoto(evt.detail._photoElement._data.pictures); // ?????
+function initGallery() {
+    window.addEventListener('galleryclick', function(event) {
+      var photos = getAllPhotosUrl();
+      gallery.setPhotos(photos);
+
+      var indexCurrentPhoto = photos.indexOf(event.detail.photoUrl);
+      gallery.setCurrentPhoto(indexCurrentPhoto);
       gallery.show();
     });
+  }
+
+  function getAllPhotosUrl() {
+    var photosUrl = [];
+    currentPictures.forEach(function(item) {
+      photosUrl.push(item['url']);
+    });
+    return photosUrl;
   }
 
 

@@ -7,6 +7,10 @@
     'RIGHT': 39
   };
 
+  function loop(value, min, max) {
+    return Math.min(Math.max(value, min), max);
+  }
+
   //@constructor
   // конструктор для галереи
   var Gallery = function() {
@@ -16,14 +20,17 @@
 
     this._photos = [];
     this._currentPhoto = 0;
+
+    this._onCloseButtonClick = this._onCloseButtonClick.bind(this);
+    this._onDocumentKeyDown = this._onDocumentKeyDown.bind(this);
   };
 
   // метод show через прототип показывает галерею
   Gallery.prototype.show = function() {
     this.element.classList.remove('invisible');
     this.closeBtn.addEventListener('click', this._onCloseButtonClick); // add Listener for click
-    document.body.addEventListener('keydown', this._onKeyDown); // add Listener for keyboard
-    this._photoElement.addEventListener('click', this._onPhotoClick);
+    document.body.addEventListener('keydown', this._onDocumentKeyDown); // add Listener for keyboard
+    // this._photoElement.addEventListener('click', this._onPhotoClick);
 
     this._showCurrentPhoto();
   };
@@ -31,12 +38,40 @@
   // метод hide через прототип скрывает галерею
   Gallery.prototype.hide = function() {
     this.element.classList.add('invisible');
-    this.closeBtn.removeEventListener('click', this._onCloseButtonClick); // remove Listener for click
-    document.body.removeEventListener('keydown', this._onKeyDown); // remove Listener for keyboard
-    this._photoElement.removeEventListener('click', this._onPhotoClick);
+    this.closeBtn.removeEventListener('click', this._onCloseButtonClick);
+    document.body.removeEventListener('keydown', this._onDocumentKeyDown);
+    // this._photoElement.removeEventListener('click', this._onPhotoClick);
 
     this._photos = [];
     this._currentPhoto = 0;
+  };
+
+/** Обработчик события клика по закрывающему элементу _onCloseButtonClick,
+ * который вызывает метод hide.
+ */
+  Gallery.prototype._onCloseButtonClick = function(evt) {
+    evt.preventDefault(); // be on the safe side
+    this.hide();
+  };
+
+/**  вызывает закрытие галереи по нажатию Esc
+ * и переключение фотографий по нажатию клавиш влево и вправо
+ */
+  Gallery.prototype._onDocumentKeyDown = function(evt) {
+    switch (evt.keyCode) {
+      case Key.LEFT:
+        this.setCurrentPhoto(this._currentPhoto - 1);
+        this._showCurrentPhoto();
+        break;
+      case Key.RIGHT:
+        this.setCurrentPhoto(this._currentPhoto + 1);
+        this._showCurrentPhoto();
+        break;
+      case Key.ESC:
+        this.hide();
+        break;
+      default: break;
+    }
   };
 
 /** записывает в приватное свойство _photos массив
@@ -50,40 +85,34 @@
  * текущей показанной фотографии, показывает ее на экране
  * и пишет ее номер в соответствующем блоке.
  */
-  Gallery.prototype.setCurrentPhoto = function() {
-    // this._currentPhoto
+  Gallery.prototype.setCurrentPhoto = function(index) {
+    index = loop(index, 0, this._photos.length - 1);
+
+    if (this._currentPhoto === index) {
+      return;
+    }
+
+    this._currentPhoto = index;
+    this._showCurrentPhoto();
+  };
+
+  Gallery.prototype._showCurrentPhoto = function() {
+    this._photoElement.src = this._photos[this._currentPhoto];
+
+    this._photoElement.onload = function() {
+      this._photoElement.classList.remove('picture-load-failure');
+    }.bind(this);
+
+    this._photoElement.onerror = function() {
+      this._photoElement.classList.add('picture-load-failure');
+    }.bind(this);
   };
 
 /** вызывает метод setCurrentPhoto с определенными параметрами. */
   Gallery.prototype._onPhotoClick = function() {
-
+    this.setCurrentPhoto(this._currentPhoto + 1);
+    this._showCurrentPhoto();
   };
-
-/**  вызывает закрытие галереи по нажатию Esc
- * и переключение фотографий по нажатию клавиш влево и вправо
- */
-  Gallery.prototype._onDocumentKeyDown = function(evt) {
-    switch (evt.keyCode) {
-      case Key.LEFT:
-        console.log('show previous photo');
-        break;
-      case Key.RIGHT:
-        console.log('show next photo');
-        break;
-      case Key.ESC:
-        this.hide();
-        break;
-      default: break;
-    }
-  };
-
-/** Обработчик события клика по закрывающему элементу _onCloseButtonClick,
- * который вызывает метод hide.
- */
-  // Gallery.prototype.__onCloseButtonClick = function(evt) {
-  //   evt.preventDefault();
-  //   this.hide();
-  // };
 
   window.Gallery = Gallery;
 })();

@@ -58,13 +58,21 @@
   };
 
   // метод для обработки клика
-  Photo.prototype._onClick = function() {
-
+  Photo.prototype._onClick = function(evt) {
     /** создает кастомное событие galleryclick с добавочными данными
      *  в свойстве detail, которые указывают на текущий объект Photo.
      *  Это используется для передачи фотографий в фотогалерею. */
-    var galleryEvent = new CustomEvent('galleryclick', { detail: { pictureElement: this }});
-    window.dispatchEvent(galleryEvent);
+    evt.preventDefault();
+    if (!this._element.classList.contains('picture-load-failure')) {
+      var galleryEvent = new CustomEvent('galleryclick', {
+        detail: { photoUrl: this._data['url'] }
+      });
+      window.dispatchEvent(galleryEvent);
+    }
+  };
+
+  Photo.prototype.getPhotos = function() {
+    return this._data.pictures;
   };
 
   // Picture в глобальную область видимости
