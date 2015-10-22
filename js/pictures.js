@@ -39,8 +39,9 @@
     var renderTo = renderFrom + PAGE_SIZE;
     data = data.slice(renderFrom, renderTo);
 
-    data.forEach(function(picData) {
-      var newPictureElement = new Photo(picData);
+    // вторым аргументом передаётся индекс фото
+    data.forEach(function(picData, index) {
+      var newPictureElement = new Photo(picData, index + renderFrom);
       newPictureElement.render(picturesFragment);
       // renderedPictures.push(newPicElement);
     });
@@ -208,8 +209,8 @@ function initGallery() {
       var photos = getAllPhotosUrl();
       gallery.setPhotos(photos);
 
-      var indexCurrentPhoto = photos.indexOf(event.detail.photoUrl);
-      gallery.setCurrentPhoto(indexCurrentPhoto);
+      // var indexCurrentPhoto = photos.indexOf(event.detail.photoUrl);
+      gallery.setCurrentPhoto(event.detail.photoIndex);
       gallery.show();
     });
   }

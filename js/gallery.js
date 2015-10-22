@@ -16,7 +16,7 @@
   var Gallery = function() {
     this.element = document.querySelector('.gallery-overlay');
     this.closeBtn = this.element.querySelector('.gallery-overlay-close');
-    this._photoElement = this.element.querySelector('.gallery-overlay-preview');
+    this._photoElement = this.element.querySelector('.gallery-overlay-image');
 
     this._photos = [];
     this._currentPhoto = 0;

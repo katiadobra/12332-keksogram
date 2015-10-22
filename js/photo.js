@@ -7,8 +7,9 @@
   /**
    * конструктор для фото
    */
-  var Photo = function(data) {
+  var Photo = function(data, index) {
     this._data = data;
+    this.index = index;
 
     /** чтобы обработчик являлся методом класса
      *событие клик привязывается к тому отелю, на котором вызвано
@@ -65,7 +66,7 @@
     evt.preventDefault();
     if (!this._element.classList.contains('picture-load-failure')) {
       var galleryEvent = new CustomEvent('galleryclick', {
-        detail: { photoUrl: this._data['url'] }
+        detail: { photoUrl: this._data['url'], photoIndex: this.index }
       });
       window.dispatchEvent(galleryEvent);
     }
