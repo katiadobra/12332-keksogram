@@ -1,4 +1,4 @@
-/* global Photo: true */
+/* global Photo: true Gallery: true */
 
 'use strict';
 
@@ -18,6 +18,7 @@
   var picturesContainer = document.querySelector('.pictures');
   var filters = document.querySelector('.filters');
   var pictures; // initial state of pictures
+  var gallery = new Gallery();
   var currentPictures; // current state of renderd pictures
   var currentPage = 0;
 
@@ -38,8 +39,9 @@
     var renderTo = renderFrom + PAGE_SIZE;
     data = data.slice(renderFrom, renderTo);
 
-    data.forEach(function(picData) {
-      var newPictureElement = new Photo(picData);
+    // вторым аргументом передаётся индекс фото
+    data.forEach(function(picData, index) {
+      var newPictureElement = new Photo(picData, index + renderFrom);
       newPictureElement.render(picturesFragment);
       // renderedPictures.push(newPicElement);
     });
@@ -202,14 +204,35 @@
     });
   }
 
+function initGallery() {
+    window.addEventListener('galleryclick', function(event) {
+      var photos = getAllPhotosUrl();
+      gallery.setPhotos(photos);
+
+      // var indexCurrentPhoto = photos.indexOf(event.detail.photoUrl);
+      gallery.setCurrentPhoto(event.detail.photoIndex);
+      gallery.show();
+    });
+  }
+
+  function getAllPhotosUrl() {
+    var photosUrl = [];
+    currentPictures.forEach(function(item) {
+      photosUrl.push(item['url']);
+    });
+    return photosUrl;
+  }
+
 
 // init events
   initFilters();
   initScroll();
+  initGallery();
 
   loadPictures(function(loadedPictures) {
     pictures = loadedPictures;
-    setActiveFilter(localStorage.getItem('value') || 'popular'); // filter from localStorage or default
+    setActiveFilter(localStorage.getItem('value') || 'popular');
+    // filter from localStorage or default
   });
 
 })();
