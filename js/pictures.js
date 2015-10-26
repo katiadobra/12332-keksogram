@@ -1,31 +1,64 @@
-/* global Photo: true Gallery: true */
+/* global
+  Photo: true
+  Gallery: true
+  PhotosCollection: true
+  PhotoView: true
+*/
 
 'use strict';
 
 (function() {
 
-  var ReadyState = {
-    'UNSENT': 0,
-    'OPENED': 1,
-    'HEADERS_RECEIVED': 2,
-    'LOADING': 3,
-    'DONE': 4
-  };
-
+  /**
+   * @const
+   * @type {number}
+   */
   var REQUEST_FAILURE_TIMEOUT = 10000;
+  /**
+   * @const
+   * @type {number}
+   */
   var PAGE_SIZE = 12;
-
-  var picturesContainer = document.querySelector('.pictures');
-  var filters = document.querySelector('.filters');
-  var pictures; // initial state of pictures
-  var gallery = new Gallery();
-  var currentPictures; // current state of renderd pictures
+  /**
+   * @type {number}
+   */
   var currentPage = 0;
 
+  /**
+   * Контейнер списка фотографий.
+   * @type {Element}
+   */
+  var picturesContainer = document.querySelector('.pictures');
+
+  /**
+   * Объект типа фотогалерея.
+   * @type {Gallery}
+   */
+  var gallery = new Gallery();
+
+  // var filters = document.querySelector('.filters');
+  var pictures;
+  var currentPictures;
   var picturesFragment = document.createDocumentFragment();
 
+  /**
+   * @type {PhotosCollection}
+   */
+  var PhotosCollection = new PhotosCollection();
+
+  /**
+   * @type {Array.<Object>}
+   */
+  var initiallyLoaded = [];
+
+  /**
+   * @type {Array.<HotelView>}
+   */
+  var renderedViews = [];
+
+
 // render Pictures
-  function renderPictures(data, pageNumber, replace) {
+  function renderPictures(pageNumber, replace) {
     replace = typeof replace !== 'undefined' ? replace : true;
     pageNumber = pageNumber || 0;
 
@@ -49,56 +82,19 @@
     picturesContainer.appendChild(picturesFragment);
   }
 
-// on error
+
+  /**
+   * Добавляет класс ошибки контейнеру с отелями. Используется в случае
+   * если произошла ошибка загрузки отелей или загрузка прервалась
+   * по таймауту.
+   */
   function showLoadFailure() {
-    picturesContainer.classList.add('pictures-failure ');
+    picturesContainer.classList.add('pictures-failure');
   }
-
-
-// load pictures with XHR
-  function loadPictures(callback) {
-    filters.classList.add('hidden');
-
-    var xhr = new XMLHttpRequest();
-    xhr.timeout = REQUEST_FAILURE_TIMEOUT;
-    xhr.open('get', 'data/pictures.json', true);
-    xhr.send();
-
-
-    xhr.onreadystatechange = function(evt) {
-      var loadedXhr = evt.target;
-
-      switch (loadedXhr.readyState) {
-        case ReadyState.OPENED:
-        case ReadyState.HEADERS_RECEIVED:
-        case ReadyState.LOADING:
-          picturesContainer.classList.add('pictures-loading');
-          break;
-
-        case ReadyState.DONE:
-        default:
-          picturesContainer.classList.remove('pictures-loading');
-          if (loadedXhr.status === 200) {
-            var data = loadedXhr.response;
-            callback(JSON.parse(data)); // data from JSON to render
-            filters.classList.remove('hidden');
-          }
-          if (loadedXhr.status >= 400) {
-            showLoadFailure();
-          }
-          break;
-      }
-    };
-
-    xhr.ontimeout = function() {
-      showLoadFailure();
-    };
-  }
-
 
 // filter pictures
   function filterPictures(pic, value) {
-    var filteredPictures = pictures.slice(0);
+    var filteredPictures = initiallyLoaded.slice(0);
     switch (value) {
       case 'new':
         filteredPictures = filteredPictures.sort(function(a, b) {
@@ -130,7 +126,7 @@
 
       case 'popular':
       default:
-        filteredPictures = pictures.slice(0);
+        filteredPictures = initiallyLoaded.slice(0);
         break;
     }
 
@@ -168,11 +164,12 @@
 
 
   function setActiveFilter(filterValue) {
-    currentPictures = filterPictures(pictures, filterValue);
+    currentPictures = filterPictures(filterValue);
     currentPage = 0;
     renderPictures(currentPictures, currentPage, true);
     var input = document.querySelector('#' + 'filter-' + filterValue);
     input.checked = true;
+    bottomSpace();
   }
 
 
@@ -186,12 +183,21 @@
     return picturesContainer.getBoundingClientRect().bottom - GAP <= window.innerHeight;
   }
 
+  /**
+   * Испускает на объекте window событие loadneeded если скролл находится внизу
+   * страницы и существует возможность показать еще одну страницу.
+   */
   function checkNextPage() { // if we are at the bottom of the page - render next page
     if ( isNextPageAvailable() && isAtTheBottom() ) {
       window.dispatchEvent(new CustomEvent('needload'));
     }
   }
 
+  /**
+   * Создает два обработчика событий: на прокручивание окна, который в оптимизированном
+   * режиме (раз в 100 миллисекунд скролла) проверяет можно ли отрисовать следующую страницу;
+   * и обработчик события loadneeded, который вызывает функцию отрисовки следующей страницы.
+   */
   function initScroll() {
     var someTimeout;
     window.addEventListener('scroll', function() {
@@ -200,34 +206,40 @@
     });
 
     window.addEventListener('needload', function() {
-      renderPictures(currentPictures, currentPage++, false);
+      renderPictures(++currentPage, false);
     });
   }
 
-function initGallery() {
-    window.addEventListener('galleryclick', function(event) {
-      var photos = getAllPhotosUrl();
-      gallery.setPhotos(photos);
-
-      // var indexCurrentPhoto = photos.indexOf(event.detail.photoUrl);
-      gallery.setCurrentPhoto(event.detail.photoIndex);
-      gallery.show();
-    });
+  function bottomSpace() {
+    if (picturesContainer.getBoundingClientRect().bottom < window.innerHeight) {
+      renderPictures(currentPage++, false);
+    }
   }
 
-  function getAllPhotosUrl() {
-    var photosUrl = [];
-    currentPictures.forEach(function(item) {
-      photosUrl.push(item['url']);
-    });
-    return photosUrl;
-  }
+  // function initGallery() {
+  //   window.addEventListener('galleryclick', function(event) {
+  //     var photos = getAllPhotosUrl();
+  //     gallery.setPhotos(photos);
+
+  //     // var indexCurrentPhoto = photos.indexOf(event.detail.photoUrl);
+  //     gallery.setCurrentPhoto(event.detail.photoIndex);
+  //     gallery.show();
+  //   });
+  // }
+
+  // function getAllPhotosUrl() {
+  //   var photosUrl = [];
+  //   currentPictures.forEach(function(item) {
+  //     photosUrl.push(item['url']);
+  //   });
+  //   return photosUrl;
+  // }
 
 
 // init events
   initFilters();
   initScroll();
-  initGallery();
+  // initGallery();
 
   loadPictures(function(loadedPictures) {
     pictures = loadedPictures;

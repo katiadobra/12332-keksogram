@@ -1,7 +1,11 @@
 root: true
 
 globals:
+  Backbone: true
   docCookies: true
+  _: true
+  define: true
+  requirejs: true
 
 env:
   browser: true

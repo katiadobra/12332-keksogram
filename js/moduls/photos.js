@@ -8,10 +8,10 @@
    * @param {Object} attributes
    * @param {Object} options
    */
-  var PicturesCollection = Backbone.Collection.extend({
+  var PhotosCollection = Backbone.Collection.extend({
     model: PhotoModel,
     url: 'data/pictures.json'
   });
 
-  window.PicturesCollection = PicturesCollection;
+  window.PhotosCollection = PhotosCollection;
 })();
