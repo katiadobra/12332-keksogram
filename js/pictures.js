@@ -44,7 +44,7 @@
   /**
    * @type {PhotosCollection}
    */
-  var PhotosCollection = new PhotosCollection();
+  var photosCollection = new PhotosCollection();
 
   /**
    * @type {Array.<Object>}
@@ -59,24 +59,46 @@
 
 // render Pictures
   function renderPictures(pageNumber, replace) {
-    replace = typeof replace !== 'undefined' ? replace : true;
-    pageNumber = pageNumber || 0;
-
-    if (replace) {
-      picturesContainer.classList.remove('picture-load-failure');
-      picturesContainer.innerHTML = '';
-    }
-
+    // replace = typeof replace !== 'undefined' ? replace : true;
+    // pageNumber = pageNumber || 0;
 
     var renderFrom = pageNumber * PAGE_SIZE;
     var renderTo = renderFrom + PAGE_SIZE;
-    data = data.slice(renderFrom, renderTo);
+    // data = data.slice(renderFrom, renderTo);
+
+    if (replace) {
+      // picturesContainer.classList.remove('picture-load-failure');
+      // picturesContainer.innerHTML = '';
+      while (renderedViews.length) {
+        var viewToRemove = renderedViews.shift();
+        // Важная особенность представлений бэкбона: remove занимается только удалением
+        // обработчиков событий, по факту это метод, который нужен для того, чтобы
+        // подчистить память после удаления элемента из дома. Добавление/удаление
+        // элемента в DOM должно производиться вручную.
+        picturesContainer.removeChild(viewToRemove.el);
+        viewToRemove.off('galleryclick');
+        viewToRemove.remove();
+      }
+    }
+
+
 
     // вторым аргументом передаётся индекс фото
-    data.forEach(function(picData, index) {
-      var newPictureElement = new Photo(picData, index + renderFrom);
-      newPictureElement.render(picturesFragment);
+    photosCollection.slice(renderFrom, renderTo).forEach(function(model) {
+      var view = new PhotoView({ model: model});
+      // var newPictureElement = new Photo(picData, index + renderFrom);
+      // newPictureElement.render(picturesFragment);
       // renderedPictures.push(newPicElement);
+
+      view.render();
+      picturesFragment.appendChild(view.el);
+      renderedViews.push(view);
+
+      view.on('galleryclick', function() {
+        gallery.setPhotos(view.model.get('pictures'));
+        gallery.setCurrentPhoto(0);
+        gallery.show();
+      });
     });
 
     picturesContainer.appendChild(picturesFragment);
@@ -93,8 +115,9 @@
   }
 
 // filter pictures
-  function filterPictures(pic, value) {
+  function filterPictures(value) {
     var filteredPictures = initiallyLoaded.slice(0);
+
     switch (value) {
       case 'new':
         filteredPictures = filteredPictures.sort(function(a, b) {
@@ -130,8 +153,9 @@
         break;
     }
 
+    photosCollection.reset(filteredPictures);
     localStorage.setItem('value', value); // write to localStorage
-    return filteredPictures;
+    // return filteredPictures;
   }
 
 // for delegation
@@ -237,14 +261,23 @@
 
 
 // init events
-  initFilters();
-  initScroll();
+  // initFilters();
+  // initScroll();
   // initGallery();
 
-  loadPictures(function(loadedPictures) {
-    pictures = loadedPictures;
-    setActiveFilter(localStorage.getItem('value') || 'popular');
+  // loadPictures(function(loadedPictures) {
+  //   pictures = loadedPictures;
+  //   setActiveFilter(localStorage.getItem('value') || 'popular');
     // filter from localStorage or default
+  // });
+  photosCollection.fetch({ timeout: REQUEST_FAILURE_TIMEOUT }).success(function(loaded, state, jqXHR) {
+    initiallyLoaded = jqXHR.responseJSON;
+    initFilters();
+    initScroll();
+
+    setActiveFilter(localStorage.getItem('value') || 'popular');
+  }).fail(function() {
+    showLoadFailure();
   });
 
 })();

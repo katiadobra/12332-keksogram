@@ -27,6 +27,8 @@
     evt.preventDefault();
 
     uploadImage(fileElement, function(image) {
+      resizer = new Resizer();
+      resizer.setElement(resizeForm);
       sessionStorage.setItem('uploaded-image', image);
       resizeForm.querySelector('.resize-image-preview').src = image;
       filterForm.querySelector('.filter-image-preview').src = image;

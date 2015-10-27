@@ -8,7 +8,7 @@
   /**
    * @type {Element}
    */
-  var pictureTemplate = document.querySelector('.picture-template');
+  var pictureTemplate = document.querySelector('#picture-template');
 
   /**
    * @constructor
@@ -21,7 +21,7 @@
     initialize: function() {
       this._onImageLoad = this._onImageLoad.bind(this);
       this._onImageFail = this._onImageFail.bind(this);
-      this._onModelLike = this._onModelLike.bind(this);
+      // this._onModelLike = this._onModelLike.bind(this);
       this._onClick = this._onClick.bind(this);
 
       // this.model.on('change:liked', this._onModelLike);
@@ -58,19 +58,34 @@
     render: function() {
       this.el.appendChild(pictureTemplate.content.children[0].cloneNode(true));
 
-      this.el.querySelector('.picture-likes').textContent = this._data['likes'];
-      this.el.querySelector('.picture-comments').textContent = this._data['comments'];
+      this.el.querySelector('.picture-likes').textContent = this.model.get('likes');
+      this.el.querySelector('.picture-comments').textContent = this.model.get('comments');
 
-      var pictureImg = new Image();
-      pictureImg.src = this._data['url'];
+      if (this.model.get('url')) {
+        var pictureImg = new Image();
+        pictureImg.src = this.model.get('url');
 
-      this._imageLoadTimeout = setTimeout(function() {
-        this.el.classList.add('picture-load-failure');
-      }.bind(this), REQUEST_FAILURE_TIMEOUT);
+        this._imageLoadTimeout = setTimeout(function() {
+          this.el.classList.add('picture-load-failure');
+        }.bind(this), REQUEST_FAILURE_TIMEOUT);
 
-      pictureImg.addEventListener('load', this._onImageLoad);
-      pictureImg.addEventListener('error', this._onImageFail);
-      pictureImg.addEventListener('abort', this._onImageFail);
+        var oldImage = this.el.querySelector('img');
+
+        pictureImg.addEventListener('load', function() {
+          this.el.querySelector('img').parentNode.replaceChild(pictureImg, oldImage);
+          pictureImg.width = 182;
+          pictureImg.height = 182;
+        }.bind(this));
+
+        pictureImg.addEventListener('error', function() {
+          this.classList.add('picture-load-failure');
+        });
+
+
+        pictureImg.addEventListener('load', this._onImageLoad);
+        pictureImg.addEventListener('error', this._onImageFail);
+        pictureImg.addEventListener('abort', this._onImageFail);
+      }
     },
 
     /**
@@ -80,11 +95,11 @@
      */
     _onClick: function(evt) {
       evt.preventDefault();
-      var clickedElement = evt.target;
+      var clickedElement = evt.target; // or CurrentTarget??
 
       if (!clickedElement.classList.contains('picture-load-failure')) {
         // var galleryEvent = new CustomEvent('galleryclick', {
-          // detail: { photoUrl: this._data['url'], photoIndex: this.index }
+          // detail: { photoUrl: this.model.get['url'], photoIndex: this.index }
         this.trigger('galleryclick');
         //window.dispatchEvent(galleryEvent);
       }
@@ -101,20 +116,19 @@
       // }
     _onImageFail: function(evt) {
       var failedImage = evt.path[0];
+
       this._cleanupImageListeners(failedImage);
       this.el.classList.add('picture-load-failure');
-      clearTimeout(this._imageLoadTimeout);
+      //clearTimeout(this._imageLoadTimeout); // ???
     },
 
     _onImageLoad: function(evt) {
       clearTimeout(this._imageLoadTimeout);
 
       var loadedImage = evt.path[0];
-      var oldImage = this.el.querySelector('img');
 
-      this.el.replaceChild(loadedImage, oldImage);
-      loadedImage.width = 182;
-      loadedImage.height = 182;
+
+      this._cleanupImageListeners(loadedImage);
     },
 
     /**
