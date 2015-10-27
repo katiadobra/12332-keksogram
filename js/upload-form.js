@@ -1,3 +1,5 @@
+/* global resizer: true */
+
 'use strict';
 
 (function() {
@@ -27,7 +29,7 @@
     evt.preventDefault();
 
     uploadImage(fileElement, function(image) {
-      resizer = new Resizer();
+      resizer = new Resizer(image);
       resizer.setElement(resizeForm);
       sessionStorage.setItem('uploaded-image', image);
       resizeForm.querySelector('.resize-image-preview').src = image;

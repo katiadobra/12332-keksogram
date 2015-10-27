@@ -1,5 +1,4 @@
 /* global
-  Photo: true
   Gallery: true
   PhotosCollection: true
   PhotoView: true
@@ -8,7 +7,6 @@
 'use strict';
 
 (function() {
-
   /**
    * @const
    * @type {number}
@@ -37,7 +35,6 @@
   var gallery = new Gallery();
 
   // var filters = document.querySelector('.filters');
-  var pictures;
   var currentPictures;
   var picturesFragment = document.createDocumentFragment();
 
@@ -199,7 +196,7 @@
 
 // scroll event
   function isNextPageAvailable() {
-    return currentPage < Math.ceil(pictures.length / PAGE_SIZE);
+    return currentPage < Math.ceil(photosCollection.length / PAGE_SIZE);
   }
 
   function isAtTheBottom() {
