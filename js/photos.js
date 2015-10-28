@@ -35,7 +35,6 @@
   var gallery = new Gallery();
 
   // var filters = document.querySelector('.filters');
-  var currentPictures;
   var picturesFragment = document.createDocumentFragment();
 
   /**
@@ -54,7 +53,12 @@
   var renderedViews = [];
 
 
-// render Pictures
+  /**
+   * Выводит на страницу список отелей постранично.
+   * @param {number} pageNumber
+   * @param {boolean=} replace
+   */
+  // render Pictures
   function renderPictures(pageNumber, replace) {
     // replace = typeof replace !== 'undefined' ? replace : true;
     // pageNumber = pageNumber || 0;
@@ -80,7 +84,8 @@
 
 
 
-    // вторым аргументом передаётся индекс фото
+    // итератор по коллекции (аргументом итератора является не элемент массива,
+    // а модель внутри коллекции)
     photosCollection.slice(renderFrom, renderTo).forEach(function(model) {
       var view = new PhotoView({ model: model});
       // var newPictureElement = new Photo(picData, index + renderFrom);
@@ -111,7 +116,16 @@
     picturesContainer.classList.add('pictures-failure');
   }
 
-// filter pictures
+  /**
+   * Фильтрация списка отелей. Принимает на вход список отелей
+   * и ID фильтра. В зависимости от переданного ID применяет
+   * разные алгоритмы фильтрации. Возвращает отфильтрованный
+   * список и записывает примененный фильтр в localStorage.
+   * Не изменяет исходный массив.
+   * @param {string} filterID
+   * @return {Array.<Object>}
+   */
+  // filter pictures
   function filterPictures(value) {
     var filteredPictures = initiallyLoaded.slice(0);
 
@@ -155,7 +169,14 @@
     // return filteredPictures;
   }
 
-// for delegation
+  /**
+   * Проверяет есть ли у переданного элемента или одного из его родителей
+   * переданный CSS-класс.
+   * @param {Element} element
+   * @param {string} className
+   * @return {boolean}
+   */
+  // for delegation
   function doesHaveParent(el, className) {
     do {
       if (el.classList.contains(className)) {
@@ -167,6 +188,13 @@
     return false;
   }
 
+  /**
+   * Инициализация подписки на клики по кнопкам фильтра.
+   * Используется делегирование событий: события обрабатываются на объекте,
+   * содержащем все фильтры, и в момент наступления события, проверяется,
+   * произошел ли клик по фильтру или нет и если да, то вызывается функция
+   * установки фильтра.
+   */
   // add Listener on pictures container
   function initFilters() {
     var filterContainer = document.querySelector('.filters');
@@ -183,7 +211,11 @@
     });
   }
 
-
+  /**
+   * Вызывает функцию фильтрации на списке отелей с переданным fitlerID
+   * и подсвечивает кнопку активного фильтра.
+   * @param {string} filterID
+   */
   function setActiveFilter(filterValue) {
     filterPictures(filterValue);
     currentPage = 0;
@@ -195,11 +227,18 @@
   }
 
 
-// scroll event
+  /**
+   * Испускает на объекте window событие loadneeded если скролл находится внизу
+   * страницы и существует возможность показать еще одну страницу.
+   */
   function isNextPageAvailable() {
     return currentPage < Math.ceil(photosCollection.length / PAGE_SIZE);
   }
 
+  /**
+   * Проверяет, находится ли скролл внизу страницы.
+   * @return {boolean}
+   */
   function isAtTheBottom() {
     var GAP = 100; // 100px bottom
     return picturesContainer.getBoundingClientRect().bottom - GAP <= window.innerHeight;
@@ -238,41 +277,13 @@
     }
   }
 
-  // function initGallery() {
-  //   window.addEventListener('galleryclick', function(event) {
-  //     var photos = getAllPhotosUrl();
-  //     gallery.setPhotos(photos);
-
-  //     // var indexCurrentPhoto = photos.indexOf(event.detail.photoUrl);
-  //     gallery.setCurrentPhoto(event.detail.photoIndex);
-  //     gallery.show();
-  //   });
-  // }
-
-  // function getAllPhotosUrl() {
-  //   var photosUrl = [];
-  //   currentPictures.forEach(function(item) {
-  //     photosUrl.push(item['url']);
-  //   });
-  //   return photosUrl;
-  // }
-
-
-// init events
-  // initFilters();
-  // initScroll();
-  // initGallery();
-
-  // loadPictures(function(loadedPictures) {
-  //   pictures = loadedPictures;
-  //   setActiveFilter(localStorage.getItem('value') || 'popular');
-    // filter from localStorage or default
-  // });
+  /**
+   * Использование встроенного меода Beckbone - fetch для загрузки данных внутрь коллекции (XHR)
+   */
   photosCollection.fetch({ timeout: REQUEST_FAILURE_TIMEOUT }).success(function(loaded, state, jqXHR) {
     initiallyLoaded = jqXHR.responseJSON;
     initFilters();
     initScroll();
-    // initGallery();
 
     setActiveFilter(localStorage.getItem('value') || 'popular');
   }).fail(function() {
