@@ -3,7 +3,6 @@
 <head>
   <link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300|Open+Sans&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" href="css/main.css" media="screen" title="no title" charset="utf-8">
-  <link rel="shortcut icon" href="favicon.ico">
   <meta charset="utf-8">
   <title>Keksogram</title>
 </head>
@@ -68,10 +67,14 @@
   <span class="gallery-overlay-close">&times;</span>
   <div class="gallery-overlay-preview">
     <img src="" class="gallery-overlay-image" alt="" />
+    <div class="gallery-overlay-controls">
+      <div class="gallery-overlay-controls-like">Нравится <span class="likes-count">0</span></div>
+      <div class="gallery-overlay-controls-comments"><span class="comments-count">125</span> комментариев</div>
+    </div>
   </div>
 </div>
 
-<template class="picture-template">
+<template id="picture-template">
   <a href="" class="picture">
     <img src="" width="182" height="182">
     <span class="picture-stats">
@@ -82,15 +85,25 @@
 </template>
 
 <script src="lib/cookies.js" charset="utf-8"></script>
-<script src="data/pictures.js" charset="utf-8"></script>
 <script src="js/logo-background.js" charset="utf-8"></script>
+<script>
+  /**
+   * Объект Resizer находится в глобальной области видимости, чтобы разные
+   * формы могли использовать его независимо друг от друга.
+   * @type {Resizer}
+   */
+  var resizer;
+</script>
+<script src="js/resize-picture.js" charset="utf-8"></script>
 <script src="js/resize-form.js" charset="utf-8"></script>
 <script src="js/upload-form.js" charset="utf-8"></script>
 <script src="js/filter-form.js" charset="utf-8"></script>
+
 <script src="js/validate-form.js" charset="utf-8"></script>
 <script src="js/photo.js" charset="utf-8"></script>
 <script src="js/gallery.js" charset="utf-8"></script>
 <script src="js/pictures.js" charset="utf-8"></script>
+
 
 
 </body>
