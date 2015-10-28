@@ -10,6 +10,8 @@
 
     like: function() {
       this.set('liked', true);
+      var likes = this.get('likes');
+      this.set('likes', ++likes);
     },
 
     dislike: function() {

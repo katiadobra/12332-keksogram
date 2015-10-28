@@ -185,9 +185,10 @@
 
 
   function setActiveFilter(filterValue) {
-    currentPictures = filterPictures(filterValue);
+    filterPictures(filterValue);
     currentPage = 0;
-    renderPictures(currentPictures, currentPage, true);
+    renderPictures(currentPage, true);
+
     var input = document.querySelector('#' + 'filter-' + filterValue);
     input.checked = true;
     bottomSpace();
@@ -271,6 +272,7 @@
     initiallyLoaded = jqXHR.responseJSON;
     initFilters();
     initScroll();
+    // initGallery();
 
     setActiveFilter(localStorage.getItem('value') || 'popular');
   }).fail(function() {
