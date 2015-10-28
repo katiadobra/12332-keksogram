@@ -204,7 +204,7 @@
     });
   }
 
-function initGallery() {
+  function initGallery() {
     window.addEventListener('galleryclick', function(event) {
       var photos = getAllPhotosUrl();
       gallery.setPhotos(photos);
