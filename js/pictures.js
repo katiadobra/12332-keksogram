@@ -97,7 +97,7 @@
 
 
 // filter pictures
-  function filterPictures(pic, value) {
+  function filterPictures(value) {
     var filteredPictures = pictures.slice(0);
     switch (value) {
       case 'new':
@@ -134,7 +134,7 @@
         break;
     }
 
-    localStorage.setItem('value', value); // write to localStorage
+    //localStorage.setItem('value', value); // write to localStorage
     return filteredPictures;
   }
 
@@ -152,20 +152,32 @@
 
   // add Listener on pictures container
   function initFilters() {
-    var filterContainer = document.querySelector('.filters');
+    var filtersContainer = document.querySelector('.filters');
+    filtersContainer.addEventListener('click', function(event) {
+      var clickedFilter = event.target;
 
-    filterContainer.addEventListener('click', function(evt) {
-      evt.preventDefault();
-      if (doesHaveParent(evt.target, 'filters-item')) {
-        var clickedFilter = evt.target.htmlFor;
-        var input = document.querySelector('#' + clickedFilter);
-        var filterValue = input.value;
-
-        setActiveFilter(filterValue);
+      while (clickedFilter !== filtersContainer) {
+        if (clickedFilter.classList.contains('filters-radio')) {
+          window.location.hash = 'filters/' + clickedFilter.value;
+          return;
+        }
+        clickedFilter = clickedFilter.parentElement;
       }
     });
   }
 
+  /**
+   * Получаем хэш, и запускаем setActiveFilter
+   */
+  function parseURL() {
+    var hashValue = location.hash;
+    var filterName = hashValue.match(/^#filters\/(\S+)$/);
+    if (filterName) {
+      setActiveFilter(filterName[1]);
+    } else {
+      setActiveFilter('popular');
+    }
+  }
 
   function setActiveFilter(filterValue) {
     currentPictures = filterPictures(pictures, filterValue);
@@ -204,16 +216,16 @@
     });
   }
 
-  function initGallery() {
-    window.addEventListener('galleryclick', function(event) {
-      var photos = getAllPhotosUrl();
-      gallery.setPhotos(photos);
+  // function initGallery() {
+  //   window.addEventListener('galleryclick', function(event) {
+  //     var photos = getAllPhotosUrl();
+  //     gallery.setPhotos(photos);
 
-      // var indexCurrentPhoto = photos.indexOf(event.detail.photoUrl);
-      gallery.setCurrentPhoto(event.detail.photoIndex);
-      gallery.show();
-    });
-  }
+  //     // var indexCurrentPhoto = photos.indexOf(event.detail.photoUrl);
+  //     gallery.setCurrentPhoto(event.detail.photoIndex);
+  //     gallery.show();
+  //   });
+  // }
 
   function getAllPhotosUrl() {
     var photosUrl = [];
@@ -227,12 +239,14 @@
 // init events
   initFilters();
   initScroll();
-  initGallery();
+  // initGallery();
+  parseURL();
 
   loadPictures(function(loadedPictures) {
     pictures = loadedPictures;
-    setActiveFilter(localStorage.getItem('value') || 'popular');
-    // filter from localStorage or default
+    window.addEventListener('hashchange', function() {
+      parseURL();
+    });
   });
 
 })();

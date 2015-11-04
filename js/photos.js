@@ -18,6 +18,11 @@
    */
   var PAGE_SIZE = 12;
   /**
+   * @const
+   * @type {string}
+   */
+  var REG_EXP = /^#filters\/(\S+)$/;
+  /**
    * @type {number}
    */
   var currentPage = 0;
@@ -165,8 +170,8 @@
     }
 
     photosCollection.reset(filteredPictures);
-    localStorage.setItem('value', value); // write to localStorage
-    // return filteredPictures;
+    //localStorage.setItem('value', value); // write to localStorage
+    return filteredPictures;
   }
 
   /**
@@ -207,8 +212,21 @@
         var filterValue = input.value;
 
         setActiveFilter(filterValue);
+        location.hash = 'filter/' + filterValue;
       }
     });
+  }
+
+  /**
+   * Получаем хэш, и запускаем setActiveFilter
+   */
+  function parseURL() {
+    var hashValue = location.hash;
+    var filterName = hashValue.match(REG_EXP);
+    if (filterName) {
+      setActiveFilter(filterName[1] || 'popular');
+    }
+    bottomSpace();
   }
 
   /**
@@ -277,15 +295,20 @@
     }
   }
 
+  window.addEventListener('hashchange', function() {
+    parseURL();
+  });
   /**
    * Использование встроенного меода Beckbone - fetch для загрузки данных внутрь коллекции (XHR)
    */
   photosCollection.fetch({ timeout: REQUEST_FAILURE_TIMEOUT }).success(function(loaded, state, jqXHR) {
     initiallyLoaded = jqXHR.responseJSON;
+
+
     initFilters();
     initScroll();
+    parseURL();
 
-    setActiveFilter(localStorage.getItem('value') || 'popular');
   }).fail(function() {
     showLoadFailure();
   });
