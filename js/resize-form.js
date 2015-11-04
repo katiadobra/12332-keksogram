@@ -19,7 +19,7 @@
 
   resizeForm.onsubmit = function(evt) {
     evt.preventDefault();
-    var image = resizer.exportImage();
+    // var image = resizer.exportImage();
     filterForm.elements['filter-image-src'] = previewImage.src;
 
     resizeForm.classList.add('invisible');
