@@ -1,6 +1,8 @@
 'use strict';
 
-(function() {
+define([
+  'views/photo-preview'
+], function(GalleryPicture) {
   var Key = {
     'ESC': 27,
     'LEFT': 37,
@@ -17,6 +19,7 @@
     this.element = document.querySelector('.gallery-overlay');
     this.closeBtn = this.element.querySelector('.gallery-overlay-close');
     this._photoElement = this.element.querySelector('.gallery-overlay-image');
+    this.galleryPicture = null;
 
     this._photos = [];
     this._currentPhoto = 0;
@@ -37,6 +40,9 @@
 
   // метод hide через прототип скрывает галерею
   Gallery.prototype.hide = function() {
+    if (this.galleryPicture) {
+      this.galleryPicture.destroy();
+    }
     this.element.classList.add('invisible');
     this.closeBtn.removeEventListener('click', this._onCloseButtonClick);
     document.body.removeEventListener('keydown', this._onDocumentKeyDown);
@@ -97,15 +103,14 @@
   };
 
   Gallery.prototype._showCurrentPhoto = function() {
-    this._photoElement.src = this._photos[this._currentPhoto];
+    var currentModel = this._photos.at(this._currentPhoto);
+    if (currentModel.get('preview')) {
+      this.galleryPicture = new GalleryPicture({model: currentModel});
+    }
 
-    this._photoElement.onload = function() {
-      this._photoElement.classList.remove('picture-load-failure');
-    }.bind(this);
-
-    this._photoElement.onerror = function() {
-      this._photoElement.classList.add('picture-load-failure');
-    }.bind(this);
+    this._element.replaceChild(this.galleryPicture.el, this._pictureElement);
+    this._pictureElement = this.galleryPicture.el;
+    this._pictureElement.addEventListener('click', this._onPhotoClick);
   };
 
 /** вызывает метод setCurrentPhoto с определенными параметрами. */
@@ -114,5 +119,5 @@
     this._showCurrentPhoto();
   };
 
-  window.Gallery = Gallery;
-})();
+  return Gallery;
+});

@@ -2,7 +2,7 @@
 
 'use strict';
 
-(function() {
+define(function() {
 
   var REQUEST_FAILURE_TIMEOUT = 10000;
   /**
@@ -143,5 +143,5 @@
     }
   });
 
-  window.PhotoView = PhotoView;
-})();
+  return PhotoView;
+});

@@ -1,6 +1,6 @@
 'use strict';
 
-(function() {
+define(function() {
   /**
    * @constructon
    * @param{Object} attributes
@@ -14,5 +14,5 @@
     }
   });
 
-  window.GalleryPicture = GalleryPicture;
-})();
+  return GalleryPicture;
+});

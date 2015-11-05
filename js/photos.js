@@ -1,12 +1,22 @@
-/* global
-  Gallery: true
-  PhotosCollection: true
-  PhotoView: true
-*/
-
 'use strict';
 
-(function() {
+requirejs.config({
+  baseUrl: 'js'
+});
+
+define([
+  'gallery',
+  'models/photo',
+  'models/photos',
+  'views/photo',
+
+  'logo-background',
+  'validate-form',
+  'resize-picture',
+  'resize-form',
+  'upload-form',
+  'filter-form'
+], function(Gallery, PhotoModel, PhotosCollection, PhotoView) {
   /**
    * @const
    * @type {number}
@@ -312,5 +322,4 @@
   }).fail(function() {
     showLoadFailure();
   });
-
-})();
+});

@@ -1,6 +1,6 @@
 'use strict';
 
-(function() {
+define(function() {
 
   var uploadResizeForm = document.forms['upload-resize'];
   var filterForm = document.forms['upload-filter'];
@@ -76,4 +76,4 @@
     }
   };
 
-})();
+});
