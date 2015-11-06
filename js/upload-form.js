@@ -1,13 +1,13 @@
 /* global resizer: true */
-
 'use strict';
 
 define([
-  'resize-picture'
+  'resize-picture',
+  'resize-form'
 ], function(Resizer) {
   var uploadForm = document.forms['upload-select-image'];
   var resizeForm = document.forms['upload-resize'];
-
+  var filterForm = document.forms['upload-filter'];
   var fileElement = uploadForm['upload-file'];
 
   function uploadImage(element, callback) {
@@ -31,12 +31,15 @@ define([
 
     uploadImage(fileElement, function(image) {
       sessionStorage.setItem('uploaded-image', image);
+      resizeForm.querySelector('.resize-image-preview').src = image;
+      filterForm.querySelector('.filter-image-preview').src = image;
       if (resizer) {
         resizer.remove();
       }
       resizer = new Resizer(image);
       resizer.setElement(resizeForm);
 
+      document.querySelector('.resize-image-preview').classList.add('invisible');
       uploadForm.classList.add('invisible');
       resizeForm.classList.remove('invisible');
     });

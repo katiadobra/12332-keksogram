@@ -1,6 +1,6 @@
 'use strict';
 
-(function() {
+define(function() {
   var uploadForm = document.forms['upload-select-image'];
   var resizeForm = document.forms['upload-resize'];
   var filterForm = document.forms['upload-filter'];
@@ -40,9 +40,15 @@
   filterForm.onsubmit = function(evt) {
     evt.preventDefault();
 
+    docCookies.setItem('upload-filter', selectedFilter.value);
+
     uploadForm.classList.remove('invisible');
     filterForm.classList.add('invisible');
   };
 
+  if (docCookies.hasItem('upload-filter')) {
+    selectedFilter.value = docCookies.getItem('upload-filter');
+  }
+
   setFilter();
-})();
+});

@@ -20,6 +20,7 @@ define(function() {
       // для удобства работы с координатами.
       this._container.width = this._image.naturalWidth;
       this._container.height = this._image.naturalHeight;
+
       /**
        * Предлагаемый размер кадра в виде коэффициента относительно меньшей
        * стороны изображения.
@@ -41,6 +42,7 @@ define(function() {
 
       // Отрисовка изначального состояния канваса.
       this.redraw();
+
       window.dispatchEvent(new CustomEvent('pictureload'));
     }.bind(this);
 
@@ -85,7 +87,7 @@ define(function() {
     /**
      * Отрисовка канваса.
      */
-    redraw: function() {
+    redraw: function(notSquare) {
       // Очистка изображения.
       this._ctx.clearRect(0, 0, this._container.width, this._container.height);
 
@@ -106,15 +108,16 @@ define(function() {
       // Отрисовка прямоугольника, обозначающего область изображения после
       // кадрирования. Координаты задаются от центра.
       //
-
-      this._ctx.strokeStyle = '#FFE753';
-      this._ctx.lineWidth = 6;
-      this._ctx.setLineDash([15, 10]);
-      this._ctx.strokeRect(
-        -this._resizeConstraint.side / 2,
-        -this._resizeConstraint.side / 2,
-        this._resizeConstraint.side,
-        this._resizeConstraint.side);
+      if (!notSquare) {
+        this._ctx.strokeStyle = '#FFE753';
+        this._ctx.lineWidth = 6;
+        this._ctx.setLineDash([15, 10]);
+        this._ctx.strokeRect(
+          -this._resizeConstraint.side / 2,
+          -this._resizeConstraint.side / 2,
+          this._resizeConstraint.side,
+          this._resizeConstraint.side);
+      }
       // Восстановление состояния канваса, которое было до вызова ctx.save
       // и последующего изменения системы координат. Нужно для того, чтобы
       // следующий кадр рисовался с привычной системой координат, где точка
@@ -122,6 +125,22 @@ define(function() {
       // некорректно сработает даже очистка холста или нужно будет использовать
       // сложные рассчеты для координат прямоугольника, который нужно очистить.
       this._ctx.restore();
+    },
+
+    /**
+     * Возвращает ширину картинки
+     * @return {number}
+     */
+    getImageSizeWidth: function() {
+      return this._container.width;
+    },
+
+    /**
+     * Возвращает высоту картинки
+     * @return {number}
+     */
+    getImageSizeHeight: function() {
+      return this._container.height;
     },
 
     /**
@@ -270,7 +289,7 @@ define(function() {
       var imageToExport = new Image(
         this._resizeConstraint.side,
         this._resizeConstraint.side);
-
+      this.redraw(true);
       // Создается новый canvas, по размерам совпадающий с кадрированным
       // изображением, в него добавляется ImageData взятый из изначального
       // изображения и сохраняется в dataURL, с помощью метода toDataURL.
@@ -282,7 +301,7 @@ define(function() {
       temporaryCanvas.height = this._resizeConstraint.side;
       temporaryCtx.drawImage(this._image, -this._resizeConstraint.x, -this._resizeConstraint.y);
       imageToExport.src = temporaryCanvas.toDataURL('image/png');
-
+      this.redraw();
       return imageToExport;
     }
   };

@@ -11,7 +11,6 @@ define([
   'views/photo',
 
   'logo-background',
-  'validate-form',
   'resize-picture',
   'resize-form',
   'upload-form',
